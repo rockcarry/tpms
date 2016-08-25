@@ -35,6 +35,12 @@ typedef struct {
     char       frame_data[TXRX_BUF_LEN];
 
     PFN_TPMS_CB callback;
+
+#ifdef ENABLE_TPMS_JNI
+    jclass     jcls_tpms;
+    jobject    jobj_tpms;
+    jmethodID  jmid_callback;
+#endif
 } TPMS_CONTEXT;
 
 // 内部函数实现
@@ -90,6 +96,10 @@ static void* tpms_data_thread(void* arg)
     struct timeval tv;
     //-- for select
 
+#ifdef ENABLE_TPMS_JNI
+    JNIEnv *env = get_jni_env();
+#endif
+
     while (1) {
         if (context->state & TPMS_THREAD_EXIT) {
             break;
@@ -123,7 +133,7 @@ static void* tpms_data_thread(void* arg)
             char  sfn;
 
             while (1) {
-                find   = memmem(find, availn, header, sizeof(header));
+                find   = (char*)memmem(find, availn, header, sizeof(header));
                 offset = find ? find - context->frame_data : -1;
                 if (offset < 0) {
 //                  printf("offset out of buffer !\n");
@@ -173,6 +183,11 @@ static void* tpms_data_thread(void* arg)
                     if (context->callback) {
                         context->callback(context, mfn, sfn);
                     }
+#ifdef ENABLE_TPMS_JNI
+                    if (env && context->jcls_tpms && context->jobj_tpms && context->jmid_callback) {
+                        env->CallVoidMethod(context->jobj_tpms, context->jmid_callback, mfn, sfn);
+                    }
+#endif
                     break;
                 case 0x63:
                 case 0x66:
@@ -200,6 +215,11 @@ static void* tpms_data_thread(void* arg)
                         if (context->callback) {
                             context->callback(context, mfn, sfn);
                         }
+#ifdef ENABLE_TPMS_JNI
+                        if (env && context->jcls_tpms && context->jobj_tpms && context->jmid_callback) {
+                            env->CallVoidMethod(context->jobj_tpms, context->jmid_callback, mfn, sfn);
+                        }
+#endif
                     }
                     break;
                 case 0x65:
@@ -213,13 +233,19 @@ static void* tpms_data_thread(void* arg)
             }
         }
     }
+
+#ifdef ENABLE_TPMS_JNI
+    // need call DetachCurrentThread
+    g_jvm->DetachCurrentThread();
+#endif
+
     return NULL;
 }
 
 // 函数实现
 void* tpms_init(char *dev, PFN_TPMS_CB callback)
 {
-    TPMS_CONTEXT *context = calloc(1, sizeof(TPMS_CONTEXT));
+    TPMS_CONTEXT *context = (TPMS_CONTEXT*)calloc(1, sizeof(TPMS_CONTEXT));
     if (!context) {
         printf("failed to allocate memory for tpms context !\n");
         return NULL;
@@ -257,6 +283,11 @@ void tpms_free(void *ctxt)
     context->state |= TPMS_THREAD_EXIT;
     close(context->fd);
     pthread_join(context->thread_tpms, NULL);
+
+#ifdef ENABLE_TPMS_JNI
+    get_jni_env()->DeleteGlobalRef(context->jobj_tpms);
+#endif
+
     free(context);
 }
 
@@ -506,10 +537,21 @@ int tpms_dump(void *ctxt)
     return 0;
 }
 
+#ifdef ENABLE_TPMS_JNI
+void tpms_init_jni_callback(void *ctxt, JNIEnv *env, jobject obj)
+{
+    TPMS_CONTEXT *context = (TPMS_CONTEXT*)ctxt;
+    if (!context) return;
+    context->jcls_tpms     = env->GetObjectClass(obj);
+    context->jobj_tpms     = env->NewGlobalRef(obj);
+    context->jmid_callback = env->GetMethodID(context->jcls_tpms, "internalCallback", "(II)V");
+}
+#endif
+
 #ifdef ENABLE_TPMS_TEST
 int main(int argc, char *argv[])
 {
-    char *uart = "/dev/ttyS1";
+    char *uart = (char*)"/dev/ttyS1";
     void *tpms = NULL;
     char line[256];
     char cmd [16];
@@ -535,7 +577,7 @@ int main(int argc, char *argv[])
             tpms_handshake(tpms);
         }
         else if (strcmp(cmd, "config_alert") == 0) {
-            TPMS_ALERT alert = {0};
+            TPMS_ALERT alert;
             alert.pressure_hot = atoi(arg1);
             alert.pressure_low = atoi(arg2);
             tpms_config_alert(tpms, atoi(arg0), &alert);

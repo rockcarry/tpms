@@ -1,6 +1,10 @@
 package com.apical.tpms;
 
-public class tpms { 
+import android.util.Log;
+
+public class tpms {
+    private static final String TAG = "tpms";
+
     public static final int TPMS_TYPE_ALERT = 0x62;
     public static final int TPMS_TYPE_TIRES = 0x63;
     public static final int TPMS_TYPE_LEARN = 0x66;
@@ -11,6 +15,7 @@ public class tpms {
 
     public void init(String dev) {
         mTpmsContext = nativeInit(dev);
+        nativeInitCallback(mTpmsContext);
     }
 
     public void release() {
@@ -44,6 +49,12 @@ public class tpms {
     public void getParams(int t, int[] params) {
         nativeGetParams(mTpmsContext, t, params);
     }
+
+    private void internalCallback(int t, int i) {
+        Log.d(TAG, "internalCallback t = " + t + " i = " + i);
+    }
+
+    private native void nativeInitCallback(long ctxt);
 
     private static native long nativeInit(String dev);
     private static native void nativeFree(long  ctxt);

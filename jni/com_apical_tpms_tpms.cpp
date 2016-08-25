@@ -49,11 +49,15 @@ JNIEXPORT JNIEnv* get_jni_env(void)
     return env;
 }
 
-extern "C" void tpms_callback_func(void *ctxt, int type, int i)
+/*
+ * Class:     com_apical_tpms_tpms
+ * Method:    nativeInitCallback
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_apical_tpms_tpms_nativeInitCallback
+  (JNIEnv *env, jobject obj, jlong ctxt)
 {
-    DO_USE_VAR(ctxt);
-    JNIEnv *env = get_jni_env();
-    ALOGD("tpms_callback_func type: %d, i: %d\n", type, i);
+    tpms_init_jni_callback((void*)ctxt, env, obj);
 }
 
 /*
@@ -67,7 +71,7 @@ JNIEXPORT jlong JNICALL Java_com_apical_tpms_tpms_nativeInit
     DO_USE_VAR(env);
     DO_USE_VAR(clazz);
     const char *str = env->GetStringUTFChars(dev, NULL);
-    jlong ctxt = (jlong)tpms_init((char*)str, tpms_callback_func);
+    jlong ctxt = (jlong)tpms_init((char*)str, NULL);
     env->ReleaseStringUTFChars(dev, str);
     return ctxt;
 }

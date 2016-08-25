@@ -1,6 +1,12 @@
 #ifndef __TPMS_H__
 #define __TPMS_H__
 
+#ifdef ENABLE_TPMS_JNI
+#include <jni.h>
+extern    JavaVM* g_jvm;
+JNIEXPORT JNIEnv* get_jni_env(void);
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,6 +47,10 @@ int   tpms_request_tire (void *ctxt, int i);
 int   tpms_unwatch_tire (void *ctxt, int i);
 int   tpms_learn_tire   (void *ctxt, int i);
 int   tpms_dump         (void *ctxt);
+
+#ifdef ENABLE_TPMS_JNI
+void  tpms_init_jni_callback(void *ctxt, JNIEnv *env, jobject obj);
+#endif
 
 #ifdef __cplusplus
 }

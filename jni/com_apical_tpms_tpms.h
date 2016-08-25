@@ -21,6 +21,14 @@ extern "C" {
 
 /*
  * Class:     com_apical_tpms_tpms
+ * Method:    nativeInitCallback
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_apical_tpms_tpms_nativeInitCallback
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_apical_tpms_tpms
  * Method:    nativeInit
  * Signature: (Ljava/lang/String;)J
  */

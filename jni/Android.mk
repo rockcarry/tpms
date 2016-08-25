@@ -7,7 +7,7 @@ LOCAL_CFLAGS += \
 
 LOCAL_MODULE := tpms
 
-LOCAL_SRC_FILES := tpms.c
+LOCAL_SRC_FILES := tpms.cpp
 
 LOCAL_MODULE_TAGS := optional
 
@@ -22,7 +22,7 @@ LOCAL_CFLAGS += \
     -DENABLE_TPMS_JNI
 
 LOCAL_SRC_FILES := \
-    tpms.c \
+    tpms.cpp \
     com_apical_tpms_tpms.cpp
 
 LOCAL_SHARED_LIBRARIES := \
