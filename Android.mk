@@ -11,6 +11,8 @@ LOCAL_PACKAGE_NAME := TpmsTest
 LOCAL_JNI_SHARED_LIBRARIES := libtpms_jni
 LOCAL_REQUIRED_MODULES := libtpms_jni
 
+LOCAL_MULTILIB := both
+
 include $(BUILD_PACKAGE)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))

@@ -2,5 +2,26 @@
 <resources>
 
     <string name="app_name">TpmsTest</string>
+    <string name="btn_refresh">refresh</string>
+    <string name="btn_match">match</string>
+    <string name="btn_unwatch">unwatch</string>
+    <string name="btn_config">config</string>
+    <string name="btn_refresh_all">refresh all</string>
+    <string name="btn_match_all">match all</string>
+    <string name="btn_unwatch_all">unwatch all</string>
+    <string name="btn_config_all">config all</string>
+
+    <string name="txt_status">status: disconnect</string>
+    <string name="txt_tire1">tire1: </string>
+    <string name="txt_tire2">tire2: </string>
+    <string name="txt_tire3">tire3: </string>
+    <string name="txt_tire4">tire4: </string>
+    <string name="txt_tire5">tire5: </string>
+    <string name="txt_alert1">alert1: </string>
+    <string name="txt_alert2">alert2: </string>
+    <string name="txt_alert3">alert3: </string>
+    <string name="txt_alert4">alert4: </string>
+    <string name="txt_alert5">alert5: </string>
+    <string name="txt_alert6">alert6: </string>
 
 </resources>
