@@ -10,11 +10,8 @@
 // 预编译开关
 #define DUMP_DATA_RECV  1
 #define DUMP_DATA_SEND  1
-#define ENABLE_TEST     1
 
 // 内部常量定义
-#define MAX_TIRES_NUM   5
-#define MAX_ALERT_NUM   6
 #define TXRX_BUF_LEN    128
 
 // 内部类型定义
@@ -37,7 +34,7 @@ typedef struct {
     int        ack_flags;
     char       frame_data[TXRX_BUF_LEN];
 
-    PFN_TIRE_CB callback;
+    PFN_TPMS_CB callback;
 } TPMS_CONTEXT;
 
 // 内部函数实现
@@ -86,7 +83,7 @@ static void* tpms_data_thread(void* arg)
     TPMS_CONTEXT *context = (TPMS_CONTEXT*)arg;
     int           offset  = 0;
     int           availn  = 0;
-    int           i, n;
+    int           i, m, n;
 
     //++ for select
     fd_set        fds;
@@ -161,29 +158,32 @@ static void* tpms_data_thread(void* arg)
                     context->ack_flags &= ~TPMS_HANDSHAKE_ACK;
                     break;
                 case 0x62:
-                    n = (sfn == 0) ? MAX_ALERT_NUM : sfn + 1;
-                    for (i=sfn; i<n; i++) {
+                    m = (sfn == 0) ? 0 : sfn - 1;
+                    n = (sfn == 0) ? MAX_ALERT_NUM : sfn;
+                    for (i=m; i<n; i++) {
                         if (i != MAX_ALERT_NUM - 1) {
-                            offset++; context->alerts[i].pressure_high = offset < availn ? context->frame_data[offset] : 0;
-                            offset++; context->alerts[i].pressure_low  = offset < availn ? context->frame_data[offset] : 0;
+                            offset++; context->alerts[i].pressure_hot = offset < availn ? context->frame_data[offset] : 0;
+                            offset++; context->alerts[i].pressure_low = offset < availn ? context->frame_data[offset] : 0;
                         }
                         else {
-                            offset++; context->alerts[i].temperature   = offset < availn ? context->frame_data[offset] : 0;
+                            offset++; context->alerts[i].pressure_hot = offset < availn ? context->frame_data[offset] : 0;
                         }
                     }
                     context->ack_flags &= ~TPMS_ALERT_ACK;
                     if (context->callback) {
-                        context->callback(context, TPMS_TYPE_ALERT, sfn);
+                        context->callback(context, mfn, sfn);
                     }
                     break;
                 case 0x63:
+                case 0x66:
                     if (sfn == 0 && /*context->tires_total == 0*/ length == 8) {
                         offset++;
                         context->tires_total   = offset < availn ? context->frame_data[offset] : 0;
                         context->tires_current = 0;
+                        memset(context->tires, 0, sizeof(context->tires));
                     }
                     else {
-                        n = (sfn == 0) ? context->tires_current : sfn;
+                        n = (sfn == 0) ? context->tires_current : sfn - 1;
                         offset++; context->tires[n].sensor_id  = (offset < availn ? context->frame_data[offset] : 0) << 16;
                         offset++; context->tires[n].sensor_id |= (offset < availn ? context->frame_data[offset] : 0) << 8 ;
                         offset++; context->tires[n].sensor_id |= (offset < availn ? context->frame_data[offset] : 0) << 0 ;
@@ -198,7 +198,7 @@ static void* tpms_data_thread(void* arg)
                     if (sfn != 0 || context->tires_current == context->tires_total) {
                         context->ack_flags &= ~TPMS_TIRES_ACK;
                         if (context->callback) {
-                            context->callback(context, TPMS_TYPE_TIRES, sfn);
+                            context->callback(context, mfn, sfn);
                         }
                     }
                     break;
@@ -217,7 +217,7 @@ static void* tpms_data_thread(void* arg)
 }
 
 // 函数实现
-void* tpms_init(char *dev, PFN_TIRE_CB callback)
+void* tpms_init(char *dev, PFN_TPMS_CB callback)
 {
     TPMS_CONTEXT *context = calloc(1, sizeof(TPMS_CONTEXT));
     if (!context) {
@@ -303,19 +303,29 @@ int tpms_config_alert(void *ctxt, int i, TPMS_ALERT *alert)
     int  dlen    = 0;
     int  timeout = 0;
     char data[MAX_ALERT_NUM*2];
-    int  ret, n, j;
+    int  ret, j;
 
     TPMS_CONTEXT *context = (TPMS_CONTEXT*)ctxt;
     if (!context) return -1;
 
-    n = (i == 0) ? MAX_ALERT_NUM : 1;
-    for (j=0; j<n; j++) {
-        if (j != MAX_ALERT_NUM - 1) {
-            data[j*2 + 0] = alert[j].pressure_high;
-            data[j*2 + 1] = alert[j].pressure_low;
+    if (i == 0) {
+        for (j=0; j<MAX_ALERT_NUM; j++) {
+            if (j != MAX_ALERT_NUM - 1) {
+                data[j*2 + 0] = alert[j].pressure_hot;
+                data[j*2 + 1] = alert[j].pressure_low;
+            }
+            else {
+                data[j*2 + 0] = alert[j].pressure_hot;
+            }
+        }
+    }
+    else {
+        if (i != MAX_ALERT_NUM - 1) {
+            data[0] = alert[0].pressure_hot;
+            data[1] = alert[0].pressure_low;
         }
         else {
-            data[j*2 + 0] = alert[j].temperature;
+            data[0] = alert[0].pressure_hot;
         }
     }
 
@@ -333,15 +343,27 @@ int tpms_config_alert(void *ctxt, int i, TPMS_ALERT *alert)
         return -1;
     }
 
-    for (j=0; j<n; j++) {
-        if (j != MAX_ALERT_NUM - 1) {
-            context->alerts[i+j].pressure_high = alert[j].pressure_high;
-            context->alerts[i+j].pressure_low  = alert[j].pressure_low;
-        }
-        else {
-            context->alerts[i+j].temperature   = alert[j].temperature;
+    if (i == 0) {
+        for (j=0; j<MAX_ALERT_NUM; j++) {
+            if (j != MAX_ALERT_NUM - 1) {
+                context->alerts[j].pressure_hot = alert[j].pressure_hot;
+                context->alerts[j].pressure_hot = alert[j].pressure_low;
+            }
+            else {
+                context->alerts[j].pressure_hot = alert[j].pressure_hot;
+            }
         }
     }
+    else {
+        if (i != MAX_ALERT_NUM - 1) {
+            context->alerts[i - 1].pressure_hot = alert[0].pressure_hot;
+            context->alerts[i - 1].pressure_low = alert[0].pressure_low;
+        }
+        else {
+            context->alerts[i - 1].pressure_hot = alert[0].pressure_hot;
+        }
+    }
+
     return 0;
 }
 
@@ -420,8 +442,22 @@ int tpms_unwatch_tire(void *ctxt, int i)
     return 0;
 }
 
-int tpms_learn(void *ctxt, int i)
+int tpms_learn_tire(void *ctxt, int i)
 {
+    char frame[TXRX_BUF_LEN];
+    int  flen    = 0;
+    int  timeout = 0;
+    int  ret;
+
+    TPMS_CONTEXT *context = (TPMS_CONTEXT*)ctxt;
+    if (!context) return -1;
+
+    flen = make_tpms_frame(frame, 0x66, i, NULL, 0);
+    ret  = write(context->fd, frame, flen);
+    if (ret == -1) {
+        printf("failed to write frame !\n");
+        return -1;
+    }
     return 0;
 }
 
@@ -453,12 +489,11 @@ int tpms_dump(void *ctxt)
     }
     printf("\n");
 
-    printf("alerts : high  low   temp\n");
+    printf("alerts : hot  low\n");
     for (i=0; i<MAX_ALERT_NUM; i++) {
-        printf("%d        %-3d   %-3d   %-3d\n", i,
-            context->alerts[i].pressure_high,
-            context->alerts[i].pressure_low,
-            context->alerts[i].temperature);
+        printf("%d        %-3d   %-3d\n", i,
+            context->alerts[i].pressure_hot,
+            context->alerts[i].pressure_low);
     }
     printf("\n");
 
@@ -471,7 +506,7 @@ int tpms_dump(void *ctxt)
     return 0;
 }
 
-#if ENABLE_TEST
+#ifdef ENABLE_TPMS_TEST
 int main(int argc, char *argv[])
 {
     char *uart = "/dev/ttyS1";
@@ -501,8 +536,8 @@ int main(int argc, char *argv[])
         }
         else if (strcmp(cmd, "config_alert") == 0) {
             TPMS_ALERT alert = {0};
-            alert.pressure_high = atoi(arg1);
-            alert.pressure_low  = atoi(arg2);
+            alert.pressure_hot = atoi(arg1);
+            alert.pressure_low = atoi(arg2);
             tpms_config_alert(tpms, atoi(arg0), &alert);
         }
         else if (strcmp(cmd, "request_alert") == 0) {
@@ -513,6 +548,9 @@ int main(int argc, char *argv[])
         }
         else if (strcmp(cmd, "unwatch_tire") == 0) {
             tpms_unwatch_tire(tpms, atoi(arg0));
+        }
+        else if (strcmp(cmd, "learn_tire") == 0) {
+            tpms_learn_tire(tpms, atoi(arg0));
         }
         else if (strcmp(cmd, "dump") == 0) {
             tpms_dump(tpms);
