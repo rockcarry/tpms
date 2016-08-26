@@ -63,6 +63,7 @@ public class TpmsTestActivity extends Activity {
     private TextView mTxtTpmsAlert4;
     private TextView mTxtTpmsAlert5;
     private TextView mTxtTpmsAlert6;
+    private TextView mTxtTpmsEvent;
 
     private TpmsTestService mTpmsServ = null;
     private ServiceConnection mTpmsServiceConn = new ServiceConnection() {
@@ -152,6 +153,7 @@ public class TpmsTestActivity extends Activity {
         mTxtTpmsAlert4 = (TextView)findViewById(R.id.txt_alert4);
         mTxtTpmsAlert5 = (TextView)findViewById(R.id.txt_alert5);
         mTxtTpmsAlert6 = (TextView)findViewById(R.id.txt_alert6);
+        mTxtTpmsEvent  = (TextView)findViewById(R.id.txt_tpms_event);
         mTxtTpmsTire1 .setTypeface(Typeface.MONOSPACE, Typeface.NORMAL);
         mTxtTpmsTire2 .setTypeface(Typeface.MONOSPACE, Typeface.NORMAL);
         mTxtTpmsTire3 .setTypeface(Typeface.MONOSPACE, Typeface.NORMAL);
@@ -283,13 +285,19 @@ public class TpmsTestActivity extends Activity {
             switch (msg.what) {
             case tpms.TPMS_TYPE_ALERT:
                 mTpmsServ.tpmsGetParams(tpms.TPMS_TYPE_ALERT, mTpmsAlerts);
+                mTxtTpmsEvent.setText("TPMS_EVENT_ALERT - " + msg.arg1);
                 break;
             case tpms.TPMS_TYPE_TIRES:
+                mTpmsServ.tpmsGetParams(tpms.TPMS_TYPE_TIRES, mTpmsTires );
+                mTxtTpmsEvent.setText("TPMS_EVENT_TIRE - " + msg.arg1);
+                break;
             case tpms.TPMS_TYPE_LEARN:
                 mTpmsServ.tpmsGetParams(tpms.TPMS_TYPE_TIRES, mTpmsTires );
+                mTxtTpmsEvent.setText("TPMS_EVENT_LEARN - " + msg.arg1);
                 break;
             case tpms.TPMS_TYPE_UNWATCH:
                 mTpmsServ.tpmsRequestTire(0);
+                mTxtTpmsEvent.setText("TPMS_EVENT_UNWATCH - " + msg.arg1);
                 break;
             }
             updateUI();

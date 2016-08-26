@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">TpmsTest</string>
+    <string name="txt_version">"tpms test apk v1.0.0, written by apical chenk, chenk@apical.com.cn"</string>
     <string name="btn_refresh">refresh</string>
     <string name="btn_match">match</string>
     <string name="btn_unwatch">unwatch</string>
