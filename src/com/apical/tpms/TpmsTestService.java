@@ -62,7 +62,7 @@ public class TpmsTestService extends Service
                 mTpms.init("/dev/ttyS0", new tpms.TpmsEventListener() {
                     @Override
                     public void onTpmsEvent(int type, int i) {
-                        Log.d(TAG, "onTpmsEvent");
+//                      Log.d(TAG, "onTpmsEvent");
                         mActivity.sendMessage(type, i);
                     }
                 });

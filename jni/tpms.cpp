@@ -8,7 +8,11 @@
 #include "tpms.h"
 
 #ifdef ENABLE_TPMS_JNI
-#define printf ALOGD
+#if 0
+#define printf(x, ...) do { ALOGD(x, ##__VA_ARGS__); } while (0)
+#else
+#define printf(x, ...) do { } while (0)
+#endif
 #endif
 
 // Ô¤±àÒë¿ª¹Ø
