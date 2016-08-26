@@ -28,12 +28,10 @@ public class TpmsTestService extends Service
         mBinder = new TpmsTestBinder();
 
         // tpms
-        /*
         mTpms = new tpms();
         mTpms.init("/dev/ttyS0");
         mTpms.requestAlert(0);
         mTpms.requestTire (0);
-        */
 
         // wake lock
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
@@ -44,7 +42,7 @@ public class TpmsTestService extends Service
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-//      mTpms.release();
+        mTpms.release();
     }
 
     @Override
