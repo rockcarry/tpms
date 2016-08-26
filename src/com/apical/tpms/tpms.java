@@ -5,21 +5,32 @@ import android.util.Log;
 public class tpms {
     private static final String TAG = "tpms";
 
-    public static final int TPMS_TYPE_ALERT = 0x62;
-    public static final int TPMS_TYPE_TIRES = 0x63;
-    public static final int TPMS_TYPE_LEARN = 0x66;
-    public static final int MAX_TIRES_NUM   = 5;
-    public static final int MAX_ALERT_NUM   = 6;
+    public static final int TPMS_TYPE_ALERT   = 0x62;
+    public static final int TPMS_TYPE_TIRES   = 0x63;
+    public static final int TPMS_TYPE_UNWATCH = 0x65;
+    public static final int TPMS_TYPE_LEARN   = 0x66;
+    public static final int MAX_TIRES_NUM     = 5;
+    public static final int MAX_ALERT_NUM     = 6;
 
-    private long mTpmsContext;
+    public interface TpmsEventListener {
+        public void onTpmsEvent(int type, int i);
+    }
 
-    public void init(String dev) {
+    private long              mTpmsContext;
+    private TpmsEventListener mListener;
+
+    public void init(String dev, TpmsEventListener l) {
         mTpmsContext = nativeInit(dev);
+        mListener    = l;
         nativeInitCallback(mTpmsContext);
     }
 
     public void release() {
         nativeFree(mTpmsContext);
+    }
+
+    public int handShake() {
+        return nativeHandShake(mTpmsContext);
     }
 
     public int configAlert(int i, int hot, int low) {
@@ -51,7 +62,9 @@ public class tpms {
     }
 
     private void internalCallback(int t, int i) {
-        Log.d(TAG, "internalCallback t = " + t + " i = " + i);
+        if (mListener != null) {
+            mListener.onTpmsEvent(t, i);
+        }
     }
 
     private native void nativeInitCallback(long ctxt);

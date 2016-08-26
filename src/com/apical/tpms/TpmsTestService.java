@@ -3,8 +3,8 @@ package com.apical.tpms;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
@@ -15,6 +15,7 @@ public class TpmsTestService extends Service
     private static final String TAG = "TpmsTestService";
 
     private TpmsTestBinder        mBinder   = null;
+    private TpmsTestActivity      mActivity = null;
     private PowerManager.WakeLock mWakeLock = null;
     private boolean  mStarted;
     private int      mCurTime;
@@ -27,12 +28,6 @@ public class TpmsTestService extends Service
         // binder
         mBinder = new TpmsTestBinder();
 
-        // tpms
-        mTpms = new tpms();
-        mTpms.init("/dev/ttyS0");
-        mTpms.requestAlert(0);
-        mTpms.requestTire (0);
-
         // wake lock
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -43,6 +38,7 @@ public class TpmsTestService extends Service
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
         mTpms.release();
+        mTpms = null;
     }
 
     @Override
@@ -59,8 +55,60 @@ public class TpmsTestService extends Service
     }
 
     public class TpmsTestBinder extends Binder {
-        public TpmsTestService getService() {
+        public TpmsTestService getService(TpmsTestActivity activity) {
+            mActivity = activity;
+            if (mTpms == null) {
+                mTpms = new tpms();
+                mTpms.init("/dev/ttyS0", new tpms.TpmsEventListener() {
+                    @Override
+                    public void onTpmsEvent(int type, int i) {
+                        Log.d(TAG, "onTpmsEvent");
+                        mActivity.sendMessage(type, i);
+                    }
+                });
+            }
             return TpmsTestService.this;
+        }
+    }
+
+    public int tpmsHandShake() {
+        if (mTpms != null) {
+            return mTpms.handShake();
+        }
+        return -1;
+    }
+
+    public int tpmsRequestAlert(int i) {
+        if (mTpms != null) {
+            return mTpms.requestAlert(i);
+        }
+        return -1;
+    }
+
+    public int tpmsRequestTire(int i) {
+        if (mTpms != null) {
+            return mTpms.requestTire(i);
+        }
+        return -1;
+    }
+
+    public int tpmsMatchTire(int i) {
+        if (mTpms != null) {
+            return mTpms.learnTire(i);
+        }
+        return -1;
+    }
+
+    public int tpmsUnwatchTire(int i) {
+        if (mTpms != null) {
+            return mTpms.unwatchTire(i);
+        }
+        return -1;
+    }
+
+    public void tpmsGetParams(int t, int[] params) {
+        if (mTpms != null) {
+            mTpms.getParams(t, params);
         }
     }
 }

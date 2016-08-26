@@ -3,6 +3,7 @@
 
 #ifdef ENABLE_TPMS_JNI
 #include <jni.h>
+#include <utils/Log.h>
 extern    JavaVM* g_jvm;
 JNIEXPORT JNIEnv* get_jni_env(void);
 #endif

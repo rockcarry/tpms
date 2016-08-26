@@ -7,6 +7,10 @@
 #include <fcntl.h>
 #include "tpms.h"
 
+#ifdef ENABLE_TPMS_JNI
+#define printf ALOGD
+#endif
+
 // Ô¤±àÒë¿ª¹Ø
 #define DUMP_DATA_RECV  1
 #define DUMP_DATA_SEND  1
@@ -127,6 +131,7 @@ static void* tpms_data_thread(void* arg)
         if (availn > 0) {
             char  header[] = { 0xaa, 0xa1, 0x41 };
             char *find     = context->frame_data;
+            int   cbflag   = 0;
             char  length;
             char  checksum;
             char  mfn;
@@ -166,6 +171,7 @@ static void* tpms_data_thread(void* arg)
                 switch (mfn) {
                 case 0x11:
                     context->ack_flags &= ~TPMS_HANDSHAKE_ACK;
+                    cbflag = 1; // set cbflag flag
                     break;
                 case 0x62:
                     m = (sfn == 0) ? 0 : sfn - 1;
@@ -180,14 +186,7 @@ static void* tpms_data_thread(void* arg)
                         }
                     }
                     context->ack_flags &= ~TPMS_ALERT_ACK;
-                    if (context->callback) {
-                        context->callback(context, mfn, sfn);
-                    }
-#ifdef ENABLE_TPMS_JNI
-                    if (env && context->jcls_tpms && context->jobj_tpms && context->jmid_callback) {
-                        env->CallVoidMethod(context->jobj_tpms, context->jmid_callback, mfn, sfn);
-                    }
-#endif
+                    cbflag = 1; // set cbflag flag
                     break;
                 case 0x63:
                 case 0x66:
@@ -198,7 +197,12 @@ static void* tpms_data_thread(void* arg)
                         memset(context->tires, 0, sizeof(context->tires));
                     }
                     else {
-                        n = (sfn == 0) ? context->tires_current : sfn - 1;
+//                      n = (sfn == 0) ? context->tires_current : sfn - 1;
+                        if (sfn == 0) {
+                            offset++; n = offset < availn ? context->frame_data[offset] : 0;
+                        }
+                        else n = sfn;
+                        n = n - 1; n = n > 0 ? n : 0; n = n < MAX_ALERT_NUM ? n : MAX_ALERT_NUM - 1;
                         offset++; context->tires[n].sensor_id  = (offset < availn ? context->frame_data[offset] : 0) << 16;
                         offset++; context->tires[n].sensor_id |= (offset < availn ? context->frame_data[offset] : 0) << 8 ;
                         offset++; context->tires[n].sensor_id |= (offset < availn ? context->frame_data[offset] : 0) << 0 ;
@@ -212,24 +216,30 @@ static void* tpms_data_thread(void* arg)
                     }
                     if (sfn != 0 || context->tires_current == context->tires_total) {
                         context->ack_flags &= ~TPMS_TIRES_ACK;
-                        if (context->callback) {
-                            context->callback(context, mfn, sfn);
-                        }
-#ifdef ENABLE_TPMS_JNI
-                        if (env && context->jcls_tpms && context->jobj_tpms && context->jmid_callback) {
-                            env->CallVoidMethod(context->jobj_tpms, context->jmid_callback, mfn, sfn);
-                        }
-#endif
+                        cbflag = 1; // set cbflag flag
                     }
                     break;
                 case 0x65:
                     if (sfn == 0xaa) {
                         context->ack_flags &= ~TPMS_UNWATCH_ACK;
+                        cbflag = 1; // set cbflag flag
                     }
                     break;
                 }
+
                 availn -= length;
                 find   += length;
+
+                if (cbflag) {
+                    if (context->callback) {
+                        context->callback(context, mfn, sfn);
+                    }
+#ifdef ENABLE_TPMS_JNI
+                    if (env && context->jcls_tpms && context->jobj_tpms && context->jmid_callback) {
+                        env->CallVoidMethod(context->jobj_tpms, context->jmid_callback, mfn, sfn);
+                    }
+#endif
+                }
             }
         }
     }

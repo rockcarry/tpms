@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:layout_marginTop="16dp"
     android:orientation="horizontal" >
 
     <LinearLayout
@@ -17,7 +18,7 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_tpms_status"
-                android:layout_width="250dp"
+                android:layout_width="280dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_status"
                 android:textSize="20dp"
@@ -38,10 +39,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_tire1"
-                android:layout_width="250dp"
+                android:layout_width="280dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_tire1"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_tire1"
@@ -75,10 +76,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_tire2"
-                android:layout_width="250dp"
+                android:layout_width="280dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_tire2"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_tire2"
@@ -112,10 +113,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_tire3"
-                android:layout_width="250dp"
+                android:layout_width="280dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_tire3"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_tire3"
@@ -149,10 +150,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_tire4"
-                android:layout_width="250dp"
+                android:layout_width="280dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_tire4"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_tire4"
@@ -186,10 +187,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_tire5"
-                android:layout_width="250dp"
+                android:layout_width="280dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_tire5"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_tire5"
@@ -223,7 +224,7 @@
             android:orientation="horizontal" >
             <Button
                 android:id="@+id/btn_refresh_tire_all"
-                android:layout_width="180dp"
+                android:layout_width="193dp"
                 android:layout_height="50dp"
                 android:text="@string/btn_refresh_all"
                 android:textSize="20dp"
@@ -231,7 +232,7 @@
                 android:textAllCaps="false" />
             <Button
                 android:id="@+id/btn_match_tire_all"
-                android:layout_width="180dp"
+                android:layout_width="193dp"
                 android:layout_height="50dp"
                 android:text="@string/btn_match_all"
                 android:textSize="20dp"
@@ -239,7 +240,7 @@
                 android:textAllCaps="false" />
             <Button
                 android:id="@+id/btn_unwatch_tire_all"
-                android:layout_width="180dp"
+                android:layout_width="193dp"
                 android:layout_height="50dp"
                 android:text="@string/btn_unwatch_all"
                 android:textSize="20dp"
@@ -261,10 +262,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_alert1"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_alert1"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_alert1"
@@ -290,10 +291,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_alert2"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_alert2"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_alert2"
@@ -319,10 +320,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_alert3"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_alert3"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_alert3"
@@ -349,10 +350,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_alert4"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_alert4"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_alert4"
@@ -379,10 +380,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_alert5"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_alert5"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_alert5"
@@ -409,10 +410,10 @@
             android:orientation="horizontal" >
             <TextView
                 android:id="@+id/txt_alert6"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/txt_alert6"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:gravity="left" />
             <Button
                 android:id="@+id/btn_refresh_alert6"
@@ -438,7 +439,7 @@
             android:orientation="horizontal" >
             <Button
                 android:id="@+id/btn_refresh_alert_all"
-                android:layout_width="220dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/btn_refresh_all"
                 android:textSize="20dp"
@@ -446,7 +447,7 @@
                 android:textAllCaps="false" />
             <Button
                 android:id="@+id/btn_config_alert_all"
-                android:layout_width="220dp"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:text="@string/btn_config_all"
                 android:textSize="20dp"
