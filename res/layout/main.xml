@@ -31,6 +31,14 @@
                 android:textSize="20dp"
                 android:gravity="center"
                 android:textAllCaps="false" />
+            <Button
+                android:id="@+id/btn_refresh_all"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="@string/btn_refresh_all"
+                android:textSize="20dp"
+                android:gravity="center"
+                android:textAllCaps="false" />
         </LinearLayout>
 
         <LinearLayout

@@ -25,6 +25,7 @@ public class TpmsTestActivity extends Activity {
     private int[]    mTpmsTires  = new int[tpms.MAX_TIRES_NUM * 4];
     private boolean  mResumeFlag = false;
     private Button   mBtnHandShake;
+    private Button   mBtnRefreshAll;
     private Button   mBtnRefreshTire1;
     private Button   mBtnRefreshTire2;
     private Button   mBtnRefreshTire3;
@@ -85,6 +86,7 @@ public class TpmsTestActivity extends Activity {
         setContentView(R.layout.main);
 
         mBtnHandShake      = (Button)findViewById(R.id.btn_refresh_status   );
+        mBtnRefreshAll     = (Button)findViewById(R.id.btn_refresh_all      );
         mBtnRefreshTire1   = (Button)findViewById(R.id.btn_refresh_tire1    );
         mBtnRefreshTire2   = (Button)findViewById(R.id.btn_refresh_tire2    );
         mBtnRefreshTire3   = (Button)findViewById(R.id.btn_refresh_tire3    );
@@ -111,6 +113,7 @@ public class TpmsTestActivity extends Activity {
         mBtnUnwatchTireAll = (Button)findViewById(R.id.btn_unwatch_tire_all );
         mBtnRefreshAlertAll= (Button)findViewById(R.id.btn_refresh_alert_all);
         mBtnHandShake      .setOnClickListener(mOnClickListener);
+        mBtnRefreshAll     .setOnClickListener(mOnClickListener);
         mBtnRefreshTire1   .setOnClickListener(mOnClickListener);
         mBtnRefreshTire2   .setOnClickListener(mOnClickListener);
         mBtnRefreshTire3   .setOnClickListener(mOnClickListener);
@@ -242,6 +245,10 @@ public class TpmsTestActivity extends Activity {
             case R.id.btn_match_tire_all   : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (0); break;
             case R.id.btn_unwatch_tire_all : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (0); break;
             case R.id.btn_refresh_alert_all: mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(0); break;
+            }
+            if (v.getId() == R.id.btn_refresh_all) {
+                mTpmsFuncRet = mTpmsServ.tpmsRequestTire(0);
+                mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(0);
             }
             updateUI();
         }
