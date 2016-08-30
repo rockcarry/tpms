@@ -1,8 +1,10 @@
 package com.apical.tpms;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -13,6 +15,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.util.Log;
 
@@ -47,10 +50,17 @@ public class TpmsTestActivity extends Activity {
     private Button   mBtnRefreshAlert4;
     private Button   mBtnRefreshAlert5;
     private Button   mBtnRefreshAlert6;
+    private Button   mBtnConfigAlert1;
+    private Button   mBtnConfigAlert2;
+    private Button   mBtnConfigAlert3;
+    private Button   mBtnConfigAlert4;
+    private Button   mBtnConfigAlert5;
+    private Button   mBtnConfigAlert6;
     private Button   mBtnRefreshTireAll;
     private Button   mBtnMatchTireAll;
     private Button   mBtnUnwatchTireAll;
     private Button   mBtnRefreshAlertAll;
+    private Button   mBtnConfigAlertAll;
     private TextView mTxtTpmsStatus;
     private TextView mTxtTpmsTire1;
     private TextView mTxtTpmsTire2;
@@ -109,10 +119,17 @@ public class TpmsTestActivity extends Activity {
         mBtnRefreshAlert4  = (Button)findViewById(R.id.btn_refresh_alert4   );
         mBtnRefreshAlert5  = (Button)findViewById(R.id.btn_refresh_alert5   );
         mBtnRefreshAlert6  = (Button)findViewById(R.id.btn_refresh_alert6   );
+        mBtnConfigAlert1   = (Button)findViewById(R.id.btn_config_alert1    );
+        mBtnConfigAlert2   = (Button)findViewById(R.id.btn_config_alert2    );
+        mBtnConfigAlert3   = (Button)findViewById(R.id.btn_config_alert3    );
+        mBtnConfigAlert4   = (Button)findViewById(R.id.btn_config_alert4    );
+        mBtnConfigAlert5   = (Button)findViewById(R.id.btn_config_alert5    );
+        mBtnConfigAlert6   = (Button)findViewById(R.id.btn_config_alert6    );
         mBtnRefreshTireAll = (Button)findViewById(R.id.btn_refresh_tire_all );
         mBtnMatchTireAll   = (Button)findViewById(R.id.btn_match_tire_all   );
         mBtnUnwatchTireAll = (Button)findViewById(R.id.btn_unwatch_tire_all );
         mBtnRefreshAlertAll= (Button)findViewById(R.id.btn_refresh_alert_all);
+        mBtnConfigAlertAll = (Button)findViewById(R.id.btn_config_alert_all );
         mBtnHandShake      .setOnClickListener(mOnClickListener);
         mBtnRefreshAll     .setOnClickListener(mOnClickListener);
         mBtnRefreshTire1   .setOnClickListener(mOnClickListener);
@@ -136,10 +153,17 @@ public class TpmsTestActivity extends Activity {
         mBtnRefreshAlert4  .setOnClickListener(mOnClickListener);
         mBtnRefreshAlert5  .setOnClickListener(mOnClickListener);
         mBtnRefreshAlert6  .setOnClickListener(mOnClickListener);
+        mBtnConfigAlert1   .setOnClickListener(mOnClickListener);
+        mBtnConfigAlert2   .setOnClickListener(mOnClickListener);
+        mBtnConfigAlert3   .setOnClickListener(mOnClickListener);
+        mBtnConfigAlert4   .setOnClickListener(mOnClickListener);
+        mBtnConfigAlert5   .setOnClickListener(mOnClickListener);
+        mBtnConfigAlert6   .setOnClickListener(mOnClickListener);
         mBtnRefreshTireAll .setOnClickListener(mOnClickListener);
         mBtnMatchTireAll   .setOnClickListener(mOnClickListener);
         mBtnUnwatchTireAll .setOnClickListener(mOnClickListener);
         mBtnRefreshAlertAll.setOnClickListener(mOnClickListener);
+        mBtnConfigAlertAll .setOnClickListener(mOnClickListener);
 
         mTxtTpmsStatus = (TextView)findViewById(R.id.txt_tpms_status);
         mTxtTpmsTire1  = (TextView)findViewById(R.id.txt_tire1 );
@@ -217,6 +241,72 @@ public class TpmsTestActivity extends Activity {
         mResumeFlag = false;
     }
 
+    private void showConfigAlertDialog(final int i) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText      editor  = new EditText(this);
+
+        String str = "";
+        switch (i) {
+        case 0: str = ""
+                    + mTxtTpmsAlert1.getText() + "\n"
+                    + mTxtTpmsAlert2.getText() + "\n"
+                    + mTxtTpmsAlert3.getText() + "\n"
+                    + mTxtTpmsAlert4.getText() + "\n"
+                    + mTxtTpmsAlert5.getText() + "\n"
+                    + mTxtTpmsAlert6.getText();
+                break;
+        case 1: str = "" + mTxtTpmsAlert1.getText(); break;
+        case 2: str = "" + mTxtTpmsAlert2.getText(); break;
+        case 3: str = "" + mTxtTpmsAlert3.getText(); break;
+        case 4: str = "" + mTxtTpmsAlert4.getText(); break;
+        case 5: str = "" + mTxtTpmsAlert5.getText(); break;
+        case 6: str = "" + mTxtTpmsAlert6.getText(); break;
+        }
+        editor.setText(str);
+        editor.setTypeface(Typeface.MONOSPACE, Typeface.NORMAL);
+
+        builder.setTitle("modify alert(s)");
+        builder.setView(editor);
+        builder.setCancelable(true);
+
+        builder.setPositiveButton("comfirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (i != 0) {
+                    int hot = 0;
+                    int low = 0;
+                    String[] splits = editor.getText().toString().split("\\s+");
+                    if (splits.length > 1) hot = Integer.parseInt(splits[1]);
+                    if (splits.length > 2) low = Integer.parseInt(splits[2]);
+                    mTpmsFuncRet = mTpmsServ.tpmsConfigAlert(i, hot, low);
+                }
+                else {
+                    int[]    alerts = new int[tpms.MAX_ALERT_NUM * 2];
+                    String[] splits = editor.getText().toString().split("\\s+");
+                    for (int i=0; i<tpms.MAX_ALERT_NUM; i++) {
+                        try {
+                            alerts[i*2+0] = Integer.parseInt(splits[i*3+1]);
+                            alerts[i*2+1] = Integer.parseInt(splits[i*3+2]);
+                        } catch (Exception e) {}
+                    }
+                    mTpmsFuncRet = mTpmsServ.tpmsConfigAlert(alerts);
+                }
+
+                // request alert to refresh ui
+                mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(0);
+            }
+        });
+
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {}
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -227,30 +317,37 @@ public class TpmsTestActivity extends Activity {
             case R.id.btn_refresh_tire3    : mTpmsFuncRet = mTpmsServ.tpmsRequestTire (3); break;
             case R.id.btn_refresh_tire4    : mTpmsFuncRet = mTpmsServ.tpmsRequestTire (4); break;
             case R.id.btn_refresh_tire5    : mTpmsFuncRet = mTpmsServ.tpmsRequestTire (5); break;
+            case R.id.btn_refresh_tire_all : mTpmsFuncRet = mTpmsServ.tpmsRequestTire (0); break;
             case R.id.btn_match_tire1      : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (1); break;
             case R.id.btn_match_tire2      : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (2); break;
             case R.id.btn_match_tire3      : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (3); break;
             case R.id.btn_match_tire4      : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (4); break;
             case R.id.btn_match_tire5      : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (5); break;
+            case R.id.btn_match_tire_all   : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (0); break;
             case R.id.btn_unwatch_tire1    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (1); break;
             case R.id.btn_unwatch_tire2    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (2); break;
             case R.id.btn_unwatch_tire3    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (3); break;
             case R.id.btn_unwatch_tire4    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (4); break;
             case R.id.btn_unwatch_tire5    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (5); break;
+            case R.id.btn_unwatch_tire_all : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (0); break;
             case R.id.btn_refresh_alert1   : mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(1); break;
             case R.id.btn_refresh_alert2   : mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(2); break;
             case R.id.btn_refresh_alert3   : mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(3); break;
             case R.id.btn_refresh_alert4   : mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(4); break;
             case R.id.btn_refresh_alert5   : mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(5); break;
             case R.id.btn_refresh_alert6   : mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(6); break;
-            case R.id.btn_refresh_tire_all : mTpmsFuncRet = mTpmsServ.tpmsRequestTire (0); break;
-            case R.id.btn_match_tire_all   : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (0); break;
-            case R.id.btn_unwatch_tire_all : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (0); break;
             case R.id.btn_refresh_alert_all: mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(0); break;
-            }
-            if (v.getId() == R.id.btn_refresh_all) {
+            case R.id.btn_config_alert1    : showConfigAlertDialog(1); break;
+            case R.id.btn_config_alert2    : showConfigAlertDialog(2); break;
+            case R.id.btn_config_alert3    : showConfigAlertDialog(3); break;
+            case R.id.btn_config_alert4    : showConfigAlertDialog(4); break;
+            case R.id.btn_config_alert5    : showConfigAlertDialog(5); break;
+            case R.id.btn_config_alert6    : showConfigAlertDialog(6); break;
+            case R.id.btn_config_alert_all : showConfigAlertDialog(0); break;
+            case R.id.btn_refresh_all:
                 mTpmsFuncRet = mTpmsServ.tpmsRequestTire(0);
                 mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(0);
+                break;
             }
             updateUI();
         }

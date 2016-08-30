@@ -85,6 +85,20 @@ public class TpmsTestService extends Service
         return -1;
     }
 
+    public int tpmsConfigAlert(int i, int hot, int low) {
+        if (mTpms != null) {
+            return mTpms.configAlert(i, hot, low);
+        }
+        return -1;
+    }
+
+    public int tpmsConfigAlert(int[] alerts) {
+        if (mTpms != null) {
+            return mTpms.configAlert(alerts);
+        }
+        return -1;
+    }
+
     public int tpmsRequestTire(int i) {
         if (mTpms != null) {
             return mTpms.requestTire(i);
