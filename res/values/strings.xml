@@ -9,6 +9,7 @@
     <string name="btn_config">config</string>
     <string name="btn_refresh_all">refresh all</string>
     <string name="btn_match_all">match all</string>
+    <string name="btn_match_cancel">match cancel</string>
     <string name="btn_unwatch_all">unwatch all</string>
     <string name="btn_config_all">config all</string>
 

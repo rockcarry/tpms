@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,10 +24,19 @@ public class TpmsTestActivity extends Activity {
     private static final String  TAG = "TpmsTestActivity";
     private static final boolean HIDE_REFRESH_BUTTONS = true;
 
+    //++ msg
+    private static final int     MSG_MATCH_TIRE   = 1;
+    private static final int     MSG_TPMS_ALERT   = tpms.TPMS_TYPE_ALERT;
+    private static final int     MSG_TPMS_TIRES   = tpms.TPMS_TYPE_TIRES;
+    private static final int     MSG_TPMS_LEARN   = tpms.TPMS_TYPE_LEARN;
+    private static final int     MSG_TPMS_UNWATCH = tpms.TPMS_TYPE_UNWATCH;
+    //-- msg
+
     private int      mTpmsFuncRet;
     private int[]    mTpmsAlerts = new int[tpms.MAX_ALERT_NUM * 2];
     private int[]    mTpmsTires  = new int[tpms.MAX_TIRES_NUM * 4];
     private boolean  mResumeFlag = false;
+    private int[]    mMatchBlink = new int[tpms.MAX_TIRES_NUM];
     private Button   mBtnHandShake;
     private Button   mBtnRefreshAll;
     private Button   mBtnRefreshTire1;
@@ -58,6 +68,7 @@ public class TpmsTestActivity extends Activity {
     private Button   mBtnConfigAlert6;
     private Button   mBtnRefreshTireAll;
     private Button   mBtnMatchTireAll;
+    private Button   mBtnMatchCancel;
     private Button   mBtnUnwatchTireAll;
     private Button   mBtnRefreshAlertAll;
     private Button   mBtnConfigAlertAll;
@@ -127,6 +138,7 @@ public class TpmsTestActivity extends Activity {
         mBtnConfigAlert6   = (Button)findViewById(R.id.btn_config_alert6    );
         mBtnRefreshTireAll = (Button)findViewById(R.id.btn_refresh_tire_all );
         mBtnMatchTireAll   = (Button)findViewById(R.id.btn_match_tire_all   );
+        mBtnMatchCancel    = (Button)findViewById(R.id.btn_match_tire_cancel);
         mBtnUnwatchTireAll = (Button)findViewById(R.id.btn_unwatch_tire_all );
         mBtnRefreshAlertAll= (Button)findViewById(R.id.btn_refresh_alert_all);
         mBtnConfigAlertAll = (Button)findViewById(R.id.btn_config_alert_all );
@@ -161,6 +173,7 @@ public class TpmsTestActivity extends Activity {
         mBtnConfigAlert6   .setOnClickListener(mOnClickListener);
         mBtnRefreshTireAll .setOnClickListener(mOnClickListener);
         mBtnMatchTireAll   .setOnClickListener(mOnClickListener);
+        mBtnMatchCancel    .setOnClickListener(mOnClickListener);
         mBtnUnwatchTireAll .setOnClickListener(mOnClickListener);
         mBtnRefreshAlertAll.setOnClickListener(mOnClickListener);
         mBtnConfigAlertAll .setOnClickListener(mOnClickListener);
@@ -205,6 +218,10 @@ public class TpmsTestActivity extends Activity {
             mBtnRefreshAlert6  .setVisibility(View.GONE);
             mBtnRefreshTireAll .setVisibility(View.GONE);
             mBtnRefreshAlertAll.setVisibility(View.GONE);
+        }
+
+        for (int i=0; i<mMatchBlink.length; i++) {
+            mMatchBlink[i] = Color.WHITE;
         }
 
         // start record service
@@ -310,7 +327,8 @@ public class TpmsTestActivity extends Activity {
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()) {
+            int id = v.getId();
+            switch (id) {
             case R.id.btn_refresh_status   : mTpmsFuncRet = mTpmsServ.tpmsHandShake   () ; break;
             case R.id.btn_refresh_tire1    : mTpmsFuncRet = mTpmsServ.tpmsRequestTire (1); break;
             case R.id.btn_refresh_tire2    : mTpmsFuncRet = mTpmsServ.tpmsRequestTire (2); break;
@@ -324,6 +342,7 @@ public class TpmsTestActivity extends Activity {
             case R.id.btn_match_tire4      : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (4); break;
             case R.id.btn_match_tire5      : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (5); break;
             case R.id.btn_match_tire_all   : mTpmsFuncRet = mTpmsServ.tpmsMatchTire   (0); break;
+            case R.id.btn_match_tire_cancel: mTpmsFuncRet = mTpmsServ.tpmsMatchTire(0xff); break;
             case R.id.btn_unwatch_tire1    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (1); break;
             case R.id.btn_unwatch_tire2    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (2); break;
             case R.id.btn_unwatch_tire3    : mTpmsFuncRet = mTpmsServ.tpmsUnwatchTire (3); break;
@@ -349,6 +368,20 @@ public class TpmsTestActivity extends Activity {
                 mTpmsFuncRet = mTpmsServ.tpmsRequestAlert(0);
                 break;
             }
+            if (  id == R.id.btn_match_tire1 || id == R.id.btn_match_tire2 || id == R.id.btn_match_tire3
+               || id == R.id.btn_match_tire4 || id == R.id.btn_match_tire5 || id == R.id.btn_match_tire_all) {
+                for (int i=0; i<mMatchBlink.length; i++) {
+                    mMatchBlink[i] = (id == R.id.btn_match_tire_all) ? Color.YELLOW : Color.WHITE;
+                }
+                switch (id) {
+                case R.id.btn_match_tire1: mMatchBlink[0] = Color.YELLOW; break;
+                case R.id.btn_match_tire2: mMatchBlink[1] = Color.YELLOW; break;
+                case R.id.btn_match_tire3: mMatchBlink[2] = Color.YELLOW; break;
+                case R.id.btn_match_tire4: mMatchBlink[3] = Color.YELLOW; break;
+                case R.id.btn_match_tire5: mMatchBlink[4] = Color.YELLOW; break;
+                }
+                mHandler.sendEmptyMessageDelayed(MSG_MATCH_TIRE, 1000);
+            }
             updateUI();
         }
     };
@@ -367,6 +400,12 @@ public class TpmsTestActivity extends Activity {
         mTxtTpmsAlert4.setText(String.format("alert4: %-3d  %-3d", mTpmsAlerts[6 ], mTpmsAlerts[7 ]));
         mTxtTpmsAlert5.setText(String.format("alert5: %-3d  %-3d", mTpmsAlerts[8 ], mTpmsAlerts[9 ]));
         mTxtTpmsAlert6.setText(String.format("alert6: %-3d  %-3d", mTpmsAlerts[10], mTpmsAlerts[11]));
+
+        mTxtTpmsTire1.setTextColor(mMatchBlink[0]);
+        mTxtTpmsTire2.setTextColor(mMatchBlink[1]);
+        mTxtTpmsTire3.setTextColor(mMatchBlink[2]);
+        mTxtTpmsTire4.setTextColor(mMatchBlink[3]);
+        mTxtTpmsTire5.setTextColor(mMatchBlink[4]);
     }
 
     public void sendMessage(int type, int i) {
@@ -391,10 +430,37 @@ public class TpmsTestActivity extends Activity {
             case tpms.TPMS_TYPE_LEARN:
                 mTpmsServ.tpmsGetParams(tpms.TPMS_TYPE_TIRES, mTpmsTires );
                 mTxtTpmsEvent.setText("TPMS_EVENT_LEARN - " + msg.arg1);
+                if (msg.arg1 == 0xff || msg.arg1 == 0x00) {
+                    for (int i=0; i<mMatchBlink.length; i++) {
+                        mMatchBlink[i] = Color.WHITE;
+                    }
+                }
+                else if (msg.arg1 >= 1 && msg.arg1 <= 5) {
+                    mMatchBlink[msg.arg1-1] = Color.WHITE;
+                }
+                boolean flag = false;
+                for (int i=0; i<mMatchBlink.length; i++) {
+                    if (mMatchBlink[i] != Color.WHITE) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    mHandler.removeMessages(MSG_MATCH_TIRE);
+                }
                 break;
             case tpms.TPMS_TYPE_UNWATCH:
                 mTpmsServ.tpmsRequestTire(0);
                 mTxtTpmsEvent.setText("TPMS_EVENT_UNWATCH - " + msg.arg1);
+                break;
+            case MSG_MATCH_TIRE:
+                mHandler.sendEmptyMessageDelayed(MSG_MATCH_TIRE, 500);
+                for (int i=0; i<mMatchBlink.length; i++) {
+                    switch (mMatchBlink[i]) {
+                    case Color.YELLOW: mMatchBlink[i] = 0           ; break;
+                    case 0           : mMatchBlink[i] = Color.YELLOW; break;
+                    }
+                }
                 break;
             }
             updateUI();
