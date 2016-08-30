@@ -206,7 +206,7 @@ static void* tpms_data_thread(void* arg)
                             offset++; n = offset < availn ? context->frame_data[offset] : 0;
                         }
                         else n = sfn;
-                        n = n - 1; n = n > 0 ? n : 0; n = n < MAX_ALERT_NUM ? n : MAX_ALERT_NUM - 1;
+                        n = n - 1; n = n > 0 ? n : 0; n = n < MAX_TIRES_NUM ? n : MAX_TIRES_NUM - 1;
                         offset++; context->tires[n].sensor_id  = (offset < availn ? context->frame_data[offset] : 0) << 16;
                         offset++; context->tires[n].sensor_id |= (offset < availn ? context->frame_data[offset] : 0) << 8 ;
                         offset++; context->tires[n].sensor_id |= (offset < availn ? context->frame_data[offset] : 0) << 0 ;
@@ -365,7 +365,7 @@ int tpms_config_alert(void *ctxt, int i, TPMS_ALERT *alert)
         }
     }
     else {
-        if (i != MAX_ALERT_NUM - 1) {
+        if (i != MAX_ALERT_NUM) {
             data[0] = alert[0].pressure_hot;
             data[1] = alert[0].pressure_low;
         }
@@ -376,6 +376,7 @@ int tpms_config_alert(void *ctxt, int i, TPMS_ALERT *alert)
 
     context->ack_flags |= TPMS_ALERT_ACK;
     dlen = (i == 0) ? MAX_ALERT_NUM*2 - 1 : 2;
+    dlen = (i == MAX_ALERT_NUM) ? dlen - 1 : dlen;
     flen = make_tpms_frame(frame, 0x62, i, data, dlen);
     ret  = write(context->fd, frame, flen);
     if (ret == -1) {
@@ -400,7 +401,7 @@ int tpms_config_alert(void *ctxt, int i, TPMS_ALERT *alert)
         }
     }
     else {
-        if (i != MAX_ALERT_NUM - 1) {
+        if (i != MAX_ALERT_NUM) {
             context->alerts[i - 1].pressure_hot = alert[0].pressure_hot;
             context->alerts[i - 1].pressure_low = alert[0].pressure_low;
         }
