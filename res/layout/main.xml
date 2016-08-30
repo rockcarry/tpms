@@ -34,7 +34,7 @@
                 android:orientation="horizontal" >
                 <TextView
                     android:id="@+id/txt_tpms_status"
-                    android:layout_width="300dp"
+                    android:layout_width="320dp"
                     android:layout_height="50dp"
                     android:text="@string/txt_status"
                     android:textSize="20dp"
@@ -63,7 +63,7 @@
                 android:orientation="horizontal" >
                 <TextView
                     android:id="@+id/txt_tire1"
-                    android:layout_width="300dp"
+                    android:layout_width="320dp"
                     android:layout_height="50dp"
                     android:text="@string/txt_tire1"
                     android:textSize="18dp"
@@ -100,7 +100,7 @@
                 android:orientation="horizontal" >
                 <TextView
                     android:id="@+id/txt_tire2"
-                    android:layout_width="300dp"
+                    android:layout_width="320dp"
                     android:layout_height="50dp"
                     android:text="@string/txt_tire2"
                     android:textSize="18dp"
@@ -137,7 +137,7 @@
                 android:orientation="horizontal" >
                 <TextView
                     android:id="@+id/txt_tire3"
-                    android:layout_width="300dp"
+                    android:layout_width="320dp"
                     android:layout_height="50dp"
                     android:text="@string/txt_tire3"
                     android:textSize="18dp"
@@ -174,7 +174,7 @@
                 android:orientation="horizontal" >
                 <TextView
                     android:id="@+id/txt_tire4"
-                    android:layout_width="300dp"
+                    android:layout_width="320dp"
                     android:layout_height="50dp"
                     android:text="@string/txt_tire4"
                     android:textSize="18dp"
@@ -211,7 +211,7 @@
                 android:orientation="horizontal" >
                 <TextView
                     android:id="@+id/txt_tire5"
-                    android:layout_width="300dp"
+                    android:layout_width="320dp"
                     android:layout_height="50dp"
                     android:text="@string/txt_tire5"
                     android:textSize="18dp"
@@ -248,7 +248,7 @@
                 android:orientation="horizontal" >
                 <Button
                     android:id="@+id/btn_refresh_tire_all"
-                    android:layout_width="150dp"
+                    android:layout_width="155dp"
                     android:layout_height="50dp"
                     android:text="@string/btn_refresh_all"
                     android:textSize="20dp"
@@ -256,7 +256,7 @@
                     android:textAllCaps="false" />
                 <Button
                     android:id="@+id/btn_match_tire_all"
-                    android:layout_width="150dp"
+                    android:layout_width="155dp"
                     android:layout_height="50dp"
                     android:text="@string/btn_match_all"
                     android:textSize="20dp"
@@ -264,7 +264,7 @@
                     android:textAllCaps="false" />
                 <Button
                     android:id="@+id/btn_match_tire_cancel"
-                    android:layout_width="150dp"
+                    android:layout_width="155dp"
                     android:layout_height="50dp"
                     android:text="@string/btn_match_cancel"
                     android:textSize="20dp"
@@ -272,7 +272,7 @@
                     android:textAllCaps="false" />
                 <Button
                     android:id="@+id/btn_unwatch_tire_all"
-                    android:layout_width="150dp"
+                    android:layout_width="155dp"
                     android:layout_height="50dp"
                     android:text="@string/btn_unwatch_all"
                     android:textSize="20dp"

@@ -23,6 +23,7 @@ import android.util.Log;
 public class TpmsTestActivity extends Activity {
     private static final String  TAG = "TpmsTestActivity";
     private static final boolean HIDE_REFRESH_BUTTONS = true;
+    private static final boolean SHOW_HUMAN_READABLE_DATA = true;
 
     //++ msg
     private static final int     MSG_MATCH_TIRE   = 1;
@@ -293,8 +294,19 @@ public class TpmsTestActivity extends Activity {
                     int hot = 0;
                     int low = 0;
                     String[] splits = editor.getText().toString().split("\\s+");
-                    if (splits.length > 1) hot = Integer.parseInt(splits[1]);
-                    if (splits.length > 2) low = Integer.parseInt(splits[2]);
+                    if (SHOW_HUMAN_READABLE_DATA) {
+                        if (i != tpms.MAX_ALERT_NUM) {
+                            if (splits.length > 1) hot = (int)(Float.parseFloat(splits[1]) * 10);
+                            if (splits.length > 2) low = (int)(Float.parseFloat(splits[2]) * 10);
+                        }
+                        else {
+                            if (splits.length > 1) hot = Integer.parseInt(splits[1]) + 50;
+                        }
+                    }
+                    else {
+                        if (splits.length > 1) hot = Integer.parseInt(splits[1]);
+                        if (splits.length > 2) low = Integer.parseInt(splits[2]);
+                    }
                     mTpmsFuncRet = mTpmsServ.tpmsConfigAlert(i, hot, low);
                 }
                 else {
@@ -302,8 +314,19 @@ public class TpmsTestActivity extends Activity {
                     String[] splits = editor.getText().toString().split("\\s+");
                     for (int i=0; i<tpms.MAX_ALERT_NUM; i++) {
                         try {
-                            alerts[i*2+0] = Integer.parseInt(splits[i*3+1]);
-                            alerts[i*2+1] = Integer.parseInt(splits[i*3+2]);
+                            if (SHOW_HUMAN_READABLE_DATA) {
+                                if (i != tpms.MAX_ALERT_NUM - 1) {
+                                    alerts[i*2+0] = (int)(Float.parseFloat(splits[i*3+1]) * 10);
+                                    alerts[i*2+1] = (int)(Float.parseFloat(splits[i*3+2]) * 10);
+                                }
+                                else {
+                                    alerts[i*2+0] = Integer.parseInt(splits[i*3+1]) + 50;
+                                }
+                            }
+                            else {
+                                alerts[i*2+0] = Integer.parseInt(splits[i*3+1]);
+                                alerts[i*2+1] = Integer.parseInt(splits[i*3+2]);
+                            }
                         } catch (Exception e) {}
                     }
                     mTpmsFuncRet = mTpmsServ.tpmsConfigAlert(alerts);
@@ -389,17 +412,52 @@ public class TpmsTestActivity extends Activity {
     private void updateUI() {
         if (!mResumeFlag) return;
         mTxtTpmsStatus.setText("status: " + (mTpmsFuncRet == 0 ? "connected" : "disconnect"));
-        mTxtTpmsTire1 .setText(String.format("tire1: %06X %-4d %-3d %02X", mTpmsTires[0 ], mTpmsTires[1 ], mTpmsTires[2 ], mTpmsTires[3 ]));
-        mTxtTpmsTire2 .setText(String.format("tire2: %06X %-4d %-3d %02X", mTpmsTires[4 ], mTpmsTires[5 ], mTpmsTires[6 ], mTpmsTires[7 ]));
-        mTxtTpmsTire3 .setText(String.format("tire3: %06X %-4d %-3d %02X", mTpmsTires[8 ], mTpmsTires[9 ], mTpmsTires[10], mTpmsTires[11]));
-        mTxtTpmsTire4 .setText(String.format("tire4: %06X %-4d %-3d %02X", mTpmsTires[12], mTpmsTires[13], mTpmsTires[14], mTpmsTires[15]));
-        mTxtTpmsTire5 .setText(String.format("tire5: %06X %-4d %-3d %02X", mTpmsTires[16], mTpmsTires[17], mTpmsTires[18], mTpmsTires[19]));
-        mTxtTpmsAlert1.setText(String.format("alert1: %-3d  %-3d", mTpmsAlerts[0 ], mTpmsAlerts[1 ]));
-        mTxtTpmsAlert2.setText(String.format("alert2: %-3d  %-3d", mTpmsAlerts[2 ], mTpmsAlerts[3 ]));
-        mTxtTpmsAlert3.setText(String.format("alert3: %-3d  %-3d", mTpmsAlerts[4 ], mTpmsAlerts[5 ]));
-        mTxtTpmsAlert4.setText(String.format("alert4: %-3d  %-3d", mTpmsAlerts[6 ], mTpmsAlerts[7 ]));
-        mTxtTpmsAlert5.setText(String.format("alert5: %-3d  %-3d", mTpmsAlerts[8 ], mTpmsAlerts[9 ]));
-        mTxtTpmsAlert6.setText(String.format("alert6: %-3d  %-3d", mTpmsAlerts[10], mTpmsAlerts[11]));
+
+        String tirelist[] = new String[tpms.MAX_TIRES_NUM];
+        for (int i=0; i<tirelist.length; i++) {
+            if (mTpmsTires[i*4+0] == 0 && mTpmsTires[i*4+1] == 0 && mTpmsTires[i*4+2] == 0 && mTpmsTires[i*4+3] == 0) {
+                tirelist[i] = String.format("tire%d: ------ ------ --- --", i + 1);
+            }
+            else {
+                if (SHOW_HUMAN_READABLE_DATA) {
+                    tirelist[i] = String.format("tire%d: %06X %6.3f %3d %02X", i + 1,
+                        mTpmsTires[i*4+0], mTpmsTires[i*4+1]*0.025, mTpmsTires[i*4+2]-50, mTpmsTires[i*4+3]);
+                }
+                else {
+                    tirelist[i] = String.format("tire1: %06X %-4d %-3d %02X", i + 1,
+                        mTpmsTires[i*4+0], mTpmsTires[i*4+1]*0.025, mTpmsTires[i*4+2]-50, mTpmsTires[i*4+3]);
+                }
+            }
+        }
+        mTxtTpmsTire1.setText(tirelist[0]);
+        mTxtTpmsTire2.setText(tirelist[1]);
+        mTxtTpmsTire3.setText(tirelist[2]);
+        mTxtTpmsTire4.setText(tirelist[3]);
+        mTxtTpmsTire5.setText(tirelist[4]);
+
+        String alertlist[] = new String[tpms.MAX_ALERT_NUM];
+        for (int i=0; i<alertlist.length; i++) {
+            if (SHOW_HUMAN_READABLE_DATA) {
+                if (i != tpms.MAX_ALERT_NUM - 1) {
+                    alertlist[i] = String.format("alert%d: %4.1f %4.1f", i + 1,
+                        mTpmsAlerts[i*2+0]*0.1, mTpmsAlerts[i*2+1]*0.1);
+                }
+                else {
+                    alertlist[i] = String.format("alert%d: %3d", i + 1,
+                        mTpmsAlerts[i*2+0] - 50);
+                }
+            }
+            else {
+                alertlist[i] = String.format("alert%d: %-3d  %-3d", i + 1,
+                    mTpmsAlerts[i*2+0], mTpmsAlerts[i*2+1]);
+            }
+        }
+        mTxtTpmsAlert1.setText(alertlist[0]);
+        mTxtTpmsAlert2.setText(alertlist[1]);
+        mTxtTpmsAlert3.setText(alertlist[2]);
+        mTxtTpmsAlert4.setText(alertlist[3]);
+        mTxtTpmsAlert5.setText(alertlist[4]);
+        mTxtTpmsAlert6.setText(alertlist[5]);
 
         mTxtTpmsTire1.setTextColor(mMatchBlink[0]);
         mTxtTpmsTire2.setTextColor(mMatchBlink[1]);
