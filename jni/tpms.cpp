@@ -200,7 +200,7 @@ static void* tpms_data_thread(void* arg)
                         context->tires_current = 0;
                         memset(context->tires, 0, sizeof(context->tires));
                     }
-                    else {
+                    else if (sfn != 0xff) {
 //                      n = (sfn == 0) ? context->tires_current : sfn - 1;
                         if (sfn == 0) {
                             offset++; n = offset < availn ? context->frame_data[offset] : 0;

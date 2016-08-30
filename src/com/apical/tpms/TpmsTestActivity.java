@@ -153,7 +153,7 @@ public class TpmsTestActivity extends Activity {
         mBtnMatchTire2     .setOnClickListener(mOnClickListener);
         mBtnMatchTire3     .setOnClickListener(mOnClickListener);
         mBtnMatchTire4     .setOnClickListener(mOnClickListener);
-        mBtnMatchTire4     .setOnClickListener(mOnClickListener);
+        mBtnMatchTire5     .setOnClickListener(mOnClickListener);
         mBtnUnwatchTire1   .setOnClickListener(mOnClickListener);
         mBtnUnwatchTire2   .setOnClickListener(mOnClickListener);
         mBtnUnwatchTire3   .setOnClickListener(mOnClickListener);
