@@ -1,4 +1,4 @@
-// °üº¬Í·ÎÄ¼ş
+// åŒ…å«å¤´æ–‡ä»¶
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,14 +15,14 @@
 #endif
 #endif
 
-// Ô¤±àÒë¿ª¹Ø
+// é¢„ç¼–è¯‘å¼€å…³
 #define DUMP_DATA_RECV  1
 #define DUMP_DATA_SEND  1
 
-// ÄÚ²¿³£Á¿¶¨Òå
+// å†…éƒ¨å¸¸é‡å®šä¹‰
 #define TXRX_BUF_LEN    128
 
-// ÄÚ²¿ÀàĞÍ¶¨Òå
+// å†…éƒ¨ç±»å‹å®šä¹‰
 typedef struct {
     int        fd;
     int        tires_total;
@@ -51,7 +51,7 @@ typedef struct {
 #endif
 } TPMS_CONTEXT;
 
-// ÄÚ²¿º¯ÊıÊµÏÖ
+// å†…éƒ¨å‡½æ•°å®ç°
 #define TPMS_START_BYTE   0xaa
 #define TPMS_MASTER_ADDR  0xa1
 #define TPMS_SLAVE_ADDR   0x41
@@ -256,7 +256,7 @@ static void* tpms_data_thread(void* arg)
     return NULL;
 }
 
-// º¯ÊıÊµÏÖ
+// å‡½æ•°å®ç°
 void* tpms_init(char *dev, PFN_TPMS_CB callback)
 {
     TPMS_CONTEXT *context = (TPMS_CONTEXT*)calloc(1, sizeof(TPMS_CONTEXT));
@@ -274,7 +274,7 @@ void* tpms_init(char *dev, PFN_TPMS_CB callback)
         struct termios ti;
         tcgetattr(context->fd, &ti);
         cfmakeraw(&ti);
-        cfsetospeed(&ti, B9600);
+        cfsetispeed(&ti, B9600);
         cfsetospeed(&ti, B9600);
         tcsetattr(context->fd, TCSANOW, &ti);
         tcflush  (context->fd, TCIOFLUSH);
